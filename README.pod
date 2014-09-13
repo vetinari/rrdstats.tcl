@@ -1,0 +1,189 @@
+
+=head1 rrdstats.tcl
+
+C<rrdstats.tcl> is an L<eggdrop|http://www.eggheads.org/> script, which
+displays the channel stats for join/part/kick, lines spoken, users on channel
+as images. It uses the L<rrdtool|http://www.rrdtool.org/> for this task.
+
+An example can be found on L<http://lost.channelno5.de/~phoenix/daily.html>
+
+=head1 Config
+
+The config file C<rrdstats.conf> is shared by the eggdrop script
+C<rrdstats.tcl> and the graph creation script C<mkrrdgraphs.tcl>. It should
+be placed inside your eggdrop installation dir, usually as
+C<~/eggdrop/rrdstats.conf>.
+
+=head2 rrd_time
+
+This is how long the one round of data is kept (in 2001 when this was written,
+some people cared about these sizes...). Possible values are:
+
+=over 4
+
+=item 0
+
+one day - uses ~350 kB user stats, ~150 kB line stats, ~100 kB join stats,
+per channel
+
+=item 1
+
+one week - uses  ~2.4 MB user stats, ~1 MB line stats and ~650 kB join stats
+per channel
+
+=item 2
+
+one month - this needs ~7.5 MB for user data, ~3 MB for line and ~2 MB for
+joins PER CHAN, only activate this if you have enough disk space...
+
+=back
+
+B<Warning>: do not change the value once the bot has read the script... OR
+delete the C<.rrd> files and C<.rehash> (all data is lost)
+
+=head2 rrd_stats(users)
+
+records how many voice/ops/users are on the chan
+
+=head2 rrd_stats(joins)
+
+joining and leaving the channel
+
+=head2 rrd_stats(lines)
+
+counts the lines/actions per minute on the chan
+
+=head2 rrd_stats(length)
+
+length of the spoken lines/actions
+
+=head2 rrd_stats(words)
+
+words per line / words per action
+
+=head2 rrd_stats(domain)
+
+stats which domains are present
+
+Set C<rrd_stats(NAME)> to C<0> if you do not want one type of stats
+
+=head2 rrd_domains
+
+A list of domains which should be matched together. If you want to filter a
+subdomain and also show the domain, add the subdomain before the domain.
+Example:
+
+ set rrd_domains {
+    *.t-dialin.net *.pppool.de *.de
+ }
+
+=head2 rrd_file
+
+This is the file(s), where RRD keeps it's database, any %chan will be
+replaced by the channel name without #!&+, i.e. the channel #a_chan
+will have the users rrd file './rrd/a_chan-users.rrd'.
+B<Note>: ALWAYS include a %type and %chan...
+
+=head2 rrd_color(users-cur)
+
+=head2 rrd_color(ops-cur)
+
+=head2 rrd_color(voice-cur)
+
+=head2 rrd_color(lines-cur)
+
+=head2 rrd_color(actions-cur)
+
+=head2 rrd_color(joins-cur)
+
+=head2 rrd_color(parts-cur)
+
+=head2 rrd_color(quits-cur)
+
+=head2 rrd_color(kicks-cur)
+
+=head2 rrd_color(domain-ip)
+
+=head2 rrd_color(domain-other)
+
+=head2 rrd_color(domain-1)
+
+=head2 rrd_color(domain-2)
+
+=head2 rrd_color(domain-3)
+
+Colors of the graphs for current users/ops/voice/lines/actions...
+
+Use colors like in HTML (NOT names!)... leave them defined, even if
+you do not show the stats for them...
+
+=head2 rrd_chans
+
+Channels for which stats should be made
+
+=head2 rrd_title(users)
+
+=head2 rrd_title(lines)
+
+=head2 rrd_title(words)
+
+=head2 rrd_title(length)
+
+=head2 rrd_title(joins)
+
+This is the title of the graph, C<%chan> will be replaced by the channel
+name.
+
+=head2 rrd_imgtype
+
+Type of image... supported values are: PNG GIF. The default PNG
+is recommended.
+
+=head2 rrd_graph_update
+
+Draw the graph every C<$rrd_graph_update> minutes. Set to C<0> to use the
+external command scripts/mkrrdgraphs.tcl to create the graphs from a cron job
+(highly recommended). Use a line like this in your crontab to start it every
+15 minutes:
+
+ 5,20,35,50 * * * * cd $HOME/eggdrop && tclsh ./scripts/mkrrdgraphs.tcl > /dev/null 2>&1
+
+=head2 rrd_graph
+
+Where should we write the graphs...
+
+ALWAYS have C<%type>, C<%time>, C<%img> and C<%chan> in the name :o)
+
+=over 4
+
+=item %img
+
+is the lowercased C<$rrd_imgtype>
+
+=item %chan
+
+is the same as in C<$rrd_file>
+
+=item %type
+
+is what kind of stats (users, lines)
+
+=item %time
+
+is C<daily>, C<weekly> or C<monthly>
+
+=back
+
+=head2 rrd_lib
+
+If your eggdrop can not load the rrd lib (C<tclrrd.so> from the C<tcl/>
+subdir of the rrdtool source) automatically from the TCL search path,
+use this (the C<rrdstats.tcl> and C<mkrrdgraphs.tcl> will load it for you)...
+else set to ""
+
+=head2 rrd_bot_dir
+
+This is the directory, where your bot is installed.
+
+=cut
+
